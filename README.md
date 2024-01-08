@@ -73,5 +73,5 @@ scene.add(mixerPlane.object3d);
 
 ## ✨ Credits
 
-A big thanks to @jeromeetienne for the original code source ❤
-Check the repo [📌 here](https://github.com/jeromeetienne/threex.htmlmixer) and he's [Github here](https://github.com/jeromeetienne).
+A big thanks to [@jeromeetienne](https://github.com/jeromeetienne) for the original code source ❤
+Check the original repo [📌 here](https://github.com/jeromeetienne/threex.htmlmixer).
