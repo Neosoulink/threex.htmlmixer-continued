@@ -4,7 +4,6 @@ import {
 	type HtmlMixerPlaneOpts,
 } from "./html-mixer";
 
-
 /**
  * Multiple context handled as one, thus able to handle multi viewport
  */
@@ -26,7 +25,7 @@ export class HtmlMultipleMixerPlane {
 	constructor(
 		multipleMixerContext: HtmlMultipleMixerContext,
 		domElement: HTMLElement,
-		opts: HtmlMultipleMixerPlaneOpts
+		opts: HtmlMultipleMixerPlaneOpts,
 	) {
 		this.opts = opts || {};
 		this.opts = JSON.parse(JSON.stringify(this.opts));
