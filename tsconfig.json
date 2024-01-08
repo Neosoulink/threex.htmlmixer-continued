@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"target": "ESNext",
+		"module": "ESNext",
+		"useDefineForClassFields": true,
+
+		"moduleResolution": "Node",
+		"noImplicitReturns": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"declaration": true,
+		"outDir": "./lib",
+		"types": ["node", "jest"],
+
+		/* Linting */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"resolveJsonModule": true
+	},
+	"ts-node": {
+		"esm": true,
+		"experimentalSpecifierResolution": "node"
+	},
+	"exclude": ["node_modules", "lib", "example", "**/__tests__/*"],
+	"include": ["src"]
+}
