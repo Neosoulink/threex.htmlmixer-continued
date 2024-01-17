@@ -39,7 +39,9 @@ export class HtmlMixerContext {
 		this.updateFcts.push(() => {
 			this.cssCamera.quaternion.copy(camera.quaternion);
 
-			this.cssCamera.position.copy(camera.position).multiplyScalar(this.cssFactor);
+			this.cssCamera.position
+				.copy(camera.position)
+				.multiplyScalar(this.cssFactor);
 		});
 
 		// Create a new scene to hold CSS.
@@ -49,7 +51,7 @@ export class HtmlMixerContext {
 		this.autoUpdateObjects = true;
 		this.updateFcts.push(() => {
 			if (this.autoUpdateObjects !== true) return;
-			this.cssScene.traverse(function (cssObject) {
+			this.cssScene.traverse((cssObject) => {
 				if (cssObject instanceof THREE.Scene) return;
 				const mixerPlane = cssObject.userData.mixerPlane as HtmlMixerPlane;
 				if (mixerPlane === undefined) return;
@@ -130,7 +132,7 @@ export class HtmlMixerPlane {
 				oldDomElement.parentNode.removeChild(oldDomElement);
 
 			// update local constiables
-			this.domElement = domElement = newDomElement;
+			this.domElement = newDomElement;
 			// update cssObject
 			cssObject.element = domElement;
 			// reset the size of the domElement
@@ -138,8 +140,8 @@ export class HtmlMixerPlane {
 		};
 
 		function setDomElementSize() {
-			domElement.style.width = elementWidth + "px";
-			domElement.style.height = elementHeight + "px";
+			domElement.style.width = `${elementWidth}px`;
+			domElement.style.height = `${elementHeight}px`;
 		}
 
 		setDomElementSize();

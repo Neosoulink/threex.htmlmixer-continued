@@ -2,7 +2,7 @@ import { HtmlMixerPlane } from "./html-mixer";
 import { HtmlMultipleMixerPlane } from "./html-multiple-mixer";
 
 export const isIOS = () => {
-	const iosQuirkPresent = function () {
+	const iosQuirkPresent = () => {
 		const audio = new Audio();
 
 		audio.volume = 0.5;
