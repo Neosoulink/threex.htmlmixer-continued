@@ -5,9 +5,10 @@ import {
 } from "three/examples/jsm/renderers/CSS3DRenderer";
 
 export class HtmlMixerContext {
-	public cssFactor: number;
 	public rendererCss: CSS3DRenderer;
 	public rendererWebgl: THREE.WebGLRenderer | THREE.WebGL1Renderer;
+	public cssFactor: number;
+	public cssCamera: THREE.PerspectiveCamera;
 	public cssScene: THREE.Scene;
 	public autoUpdateObjects: boolean;
 	public updateFcts: (() => unknown)[] = [];
@@ -28,7 +29,7 @@ export class HtmlMixerContext {
 		this.rendererWebgl = rendererWebgl;
 
 		// Handle Camera
-		const cssCamera = new THREE.PerspectiveCamera(
+		this.cssCamera = new THREE.PerspectiveCamera(
 			camera.fov,
 			camera.aspect,
 			camera.near * this.cssFactor,
@@ -36,9 +37,9 @@ export class HtmlMixerContext {
 		);
 
 		this.updateFcts.push(() => {
-			cssCamera.quaternion.copy(camera.quaternion);
+			this.cssCamera.quaternion.copy(camera.quaternion);
 
-			cssCamera.position.copy(camera.position).multiplyScalar(this.cssFactor);
+			this.cssCamera.position.copy(camera.position).multiplyScalar(this.cssFactor);
 		});
 
 		// Create a new scene to hold CSS.
@@ -58,7 +59,7 @@ export class HtmlMixerContext {
 
 		// Render CssScene
 		this.updateFcts.push(() => {
-			this.rendererCss.render(this.cssScene, cssCamera);
+			this.rendererCss.render(this.cssScene, this.cssCamera);
 		});
 	}
 
