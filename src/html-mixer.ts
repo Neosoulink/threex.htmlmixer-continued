@@ -2,7 +2,7 @@ import * as THREE from "three";
 import {
 	CSS3DObject,
 	CSS3DRenderer,
-} from "three/examples/jsm/renderers/CSS3DRenderer";
+} from "three/examples/jsm/renderers/CSS3DRenderer.js";
 
 export class HtmlMixerContext {
 	public rendererCss: CSS3DRenderer;
@@ -81,10 +81,13 @@ export interface HtmlMixerPlaneOpts {
 export class HtmlMixerPlane {
 	public opts: HtmlMixerPlaneOpts;
 	public domElement: HTMLElement;
-	public object3d: THREE.Mesh<THREE.PlaneGeometry>;
+	public object3d!: THREE.Mesh<THREE.PlaneGeometry>;
 	public cssObject: CSS3DObject;
 	public updateFcts: (() => unknown)[] = [];
-	public setDomElement: (newDomElement: HTMLElement) => void;
+	public elementWidth = 0;
+	public aspectRatio = 0;
+	public elementHeight = 0;
+	public mixerContext: HtmlMixerContext;
 
 	/**
 	 * @param mixerContext context
@@ -96,6 +99,7 @@ export class HtmlMixerPlane {
 		domElement: HTMLElement,
 		opts?: HtmlMixerPlaneOpts,
 	) {
+		this.mixerContext = mixerContext;
 		this.opts = opts || {};
 		this.opts.elementW =
 			this.opts.elementW !== undefined ? this.opts.elementW : 768;
@@ -115,56 +119,27 @@ export class HtmlMixerPlane {
 				this.opts.planeW,
 				this.opts.planeH,
 			);
-			this.object3d = new THREE.Mesh(geometry, planeMaterial);
+
+			this.setObject3D(new THREE.Mesh(geometry, planeMaterial));
 		} else {
-			this.object3d = this.opts.object3d;
+			this.setObject3D(this.opts.object3d);
 		}
 
 		// width of iframe in pixels
-		const aspectRatio = this.opts.planeH / this.opts.planeW;
-		const elementWidth = this.opts.elementW;
-		const elementHeight = elementWidth * aspectRatio;
+		this.correctSizes();
 
-		this.setDomElement = (newDomElement) => {
-			// remove the oldDomElement
-			const oldDomElement = domElement;
-			if (oldDomElement.parentNode)
-				oldDomElement.parentNode.removeChild(oldDomElement);
-
-			// update local constiables
-			this.domElement = newDomElement;
-			// update cssObject
-			cssObject.element = domElement;
-			// reset the size of the domElement
-			setDomElementSize();
-		};
-
-		function setDomElementSize() {
-			domElement.style.width = `${elementWidth}px`;
-			domElement.style.height = `${elementHeight}px`;
-		}
-
-		setDomElementSize();
+		this.setDomElementSize();
 
 		// create a CSS3DObject to display element
-		const cssObject = new CSS3DObject(domElement);
-		this.cssObject = cssObject;
-		cssObject.scale
+		this.cssObject = new CSS3DObject(domElement);
+		this.cssObject.scale
 			.set(1, 1, 1)
 			.multiplyScalar(
-				mixerContext.cssFactor / (elementWidth / this.opts.planeH),
+				this.mixerContext.cssFactor / (this.elementWidth / this.opts.planeH),
 			);
 
-		// Hook cssObhect to mixerPlane.
-		cssObject.userData.mixerPlane = this;
-
-		// Hook event so cssObject is attached to cssScene when object3d is added/removed.
-		this.object3d.addEventListener("added", () => {
-			mixerContext.cssScene.add(cssObject);
-		});
-		this.object3d.addEventListener("removed", () => {
-			mixerContext.cssScene.remove(cssObject);
-		});
+		// Hook cssObject to mixerPlane.
+		this.cssObject.userData.mixerPlane = this;
 
 		this.updateFcts.push(() => {
 			// get world position
@@ -178,17 +153,61 @@ export class HtmlMixerPlane {
 			worldMatrix.decompose(position, quaternion, scale);
 
 			// handle quaternion
-			cssObject.quaternion.copy(quaternion);
+			this.cssObject.quaternion.copy(quaternion);
 
 			// handle position
-			cssObject.position.copy(position).multiplyScalar(mixerContext.cssFactor);
+			this.cssObject.position
+				.copy(position)
+				.multiplyScalar(this.mixerContext.cssFactor);
 			// handle scale
 			const scaleFactor =
-				elementWidth / (this.object3d.geometry.parameters.width * scale.x);
-			cssObject.scale
+				this.elementWidth / (this.object3d.geometry.parameters.width * scale.x);
+			this.cssObject.scale
 				.set(1, 1, 1)
-				.multiplyScalar(mixerContext.cssFactor / scaleFactor);
+				.multiplyScalar(this.mixerContext.cssFactor / scaleFactor);
 		});
+	}
+
+	setDomElement(newDomElement: HTMLElement) {
+		// remove the oldDomElement
+		const oldDomElement = this.domElement;
+		if (oldDomElement.parentNode)
+			oldDomElement.parentNode.removeChild(oldDomElement);
+
+		// update local constiables
+		this.domElement = newDomElement;
+		// update cssObject
+		this.cssObject.element = newDomElement;
+		// reset the size of the domElement
+		this.setDomElementSize();
+		this.cssObject.updateMatrixWorld();
+	}
+
+	/**
+	 * Hook event so cssObject is attached to cssScene when
+	 * object3d is added/removed.
+	 *
+	 * @param newObject
+	 */
+	public setObject3D(newObject: typeof this.object3d) {
+		this.object3d = newObject;
+		this.object3d.addEventListener("added", () => {
+			this.mixerContext.cssScene.add(this.cssObject);
+		});
+		this.object3d.addEventListener("removed", () => {
+			this.mixerContext.cssScene.remove(this.cssObject);
+		});
+	}
+
+	public setDomElementSize() {
+		this.domElement.style.height = `${this.elementHeight}px`;
+		this.domElement.style.width = `${this.elementWidth}px`;
+	}
+
+	public correctSizes() {
+		this.aspectRatio = (this.opts.planeH ?? 1) / (this.opts.planeW ?? 1);
+		this.elementWidth = this.opts.elementW ?? 0;
+		this.elementHeight = this.elementWidth * this.aspectRatio;
 	}
 
 	public update() {
