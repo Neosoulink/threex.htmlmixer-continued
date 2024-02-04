@@ -35,11 +35,11 @@
 		"release": "npm run prepare && np"
 	},
 	"dependencies": {
-		"three": "^0.159.0"
+		"three": "^0.161.0"
 	},
 	"devDependencies": {
 		"@types/jest": "^29.5.11",
-		"@types/three": "^0.159.0",
+		"@types/three": "^0.161.0",
 		"@typescript-eslint/eslint-plugin": "^6.1.0",
 		"@typescript-eslint/parser": "^6.1.0",
 		"eslint": "^8.45.0",
