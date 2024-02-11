@@ -127,8 +127,7 @@ export class HtmlMixerPlane {
 
 		// width of iframe in pixels
 		this.correctSizes();
-
-		this.setDomElementSize();
+		this.correctElementSizes();
 
 		// create a CSS3DObject to display element
 		this.cssObject = new CSS3DObject(domElement);
@@ -179,7 +178,7 @@ export class HtmlMixerPlane {
 		// update cssObject
 		this.cssObject.element = newDomElement;
 		// reset the size of the domElement
-		this.setDomElementSize();
+		this.correctElementSizes();
 		this.cssObject.updateMatrixWorld();
 	}
 
@@ -199,7 +198,7 @@ export class HtmlMixerPlane {
 		});
 	}
 
-	public setDomElementSize() {
+	public correctElementSizes() {
 		this.domElement.style.height = `${this.elementHeight}px`;
 		this.domElement.style.width = `${this.elementWidth}px`;
 	}
